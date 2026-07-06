@@ -41,6 +41,30 @@ python server.py
 python cli_tester.py
 ```
 
+### MCP Client Integration
+
+To use StuDAG in an AI client (like Claude Desktop or Cursor), add it to your MCP configuration:
+
+**Claude Desktop (`claude_desktop_config.json`):**
+```json
+{
+  "mcpServers": {
+    "StuDAG": {
+      "command": "python",
+      "args": [
+        "/absolute/path/to/StuDAG/server.py"
+      ]
+    }
+  }
+}
+```
+
+**Cursor:**
+Go to `Cursor Settings > Features > MCP` and add a new server:
+- Type: `command`
+- Name: `StuDAG`
+- Command: `python /absolute/path/to/StuDAG/server.py`
+
 ---
 
 <h2 id="简体中文">简体中文</h2>
@@ -79,6 +103,30 @@ python server.py
 # 或者启动本地交互测试台
 python cli_tester.py
 ```
+
+### MCP 客户端接入指南
+
+要在真实的 AI 客户端（如 Claude Desktop 或 Cursor）中激活此拦截网，请将其配置为 MCP Server：
+
+**Claude Desktop (`claude_desktop_config.json`):**
+```json
+{
+  "mcpServers": {
+    "StuDAG": {
+      "command": "python",
+      "args": [
+        "绝对路径/StuDAG/server.py"
+      ]
+    }
+  }
+}
+```
+
+**Cursor:**
+前往 `Cursor Settings > Features > MCP` 添加新服务器：
+- Type: `command`
+- Name: `StuDAG`
+- Command: `python 绝对路径/StuDAG/server.py`
 
 ---
 
