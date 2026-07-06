@@ -30,8 +30,15 @@ StuDAG uses the Model Context Protocol (MCP) server architecture.
 
 ### Usage
 ```bash
+git clone https://github.com/Kayla-Cheung/StuDAG.git
+cd StuDAG
 pip install -r requirements.txt
+
+# Start the MCP server
 python server.py
+
+# Or run the local interactive tester
+python cli_tester.py
 ```
 
 ---
@@ -62,8 +69,15 @@ StuDAG 采用 Model Context Protocol (MCP) 服务器架构，直接拦截 LLM �
 
 ### 启动指南
 ```bash
+git clone https://github.com/Kayla-Cheung/StuDAG.git
+cd StuDAG
 pip install -r requirements.txt
+
+# 启动 MCP 服务器拦截网
 python server.py
+
+# 或者启动本地交互测试台
+python cli_tester.py
 ```
 
 ---
