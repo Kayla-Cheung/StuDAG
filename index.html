@@ -182,10 +182,10 @@
             var new_edges = [];
             
             state.nodes.forEach(node => {
-                let color = node.status === 'resolved' ? 'var(--node-resolved)' : 'var(--node-pending)';
+                let color = node.status === 'resolved' ? '#10b981' : '#f59e0b'; // Green or Orange
                 let isTop = state.call_stack.length > 0 && state.call_stack[state.call_stack.length - 1] === node.id;
                 
-                if (isTop) color = 'var(--node-focus)';
+                if (isTop) color = '#ef4444'; // Red
 
                 new_nodes.push({
                     id: node.id,
