@@ -12,16 +12,24 @@ tracker = CognitiveTracker()
 class ResolveRequest(BaseModel):
     node_id: str
 
+@app.post("/api/push")
+def push_node(topic: str, parent_id: str = None):
+    try:
+        nid = tracker.push_node(topic, parent_id)
+        return {"status": "success", "node_id": nid}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
 @app.get("/api/state")
 def get_state():
     # Force reload from physical disk to ensure sync with MCP server
-    tracker._load_state()
+    tracker.state = tracker._load_state()
     return {
         "nodes": [
             {
                 "id": n.id,
                 "topic": n.topic,
-                "status": n.status.value,
+                "status": n.status,
                 "parent_id": n.parent_id,
             }
             for n in tracker.state.nodes.values()
