@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StuDAG Cognitive Dashboard</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        body { font-family: 'Inter', -apple-system, sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
+        #mynetwork { width: 100%; height: 80vh; border: 1px solid #334155; border-radius: 8px; background-color: #1e293b; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        h1 { font-size: 1.5rem; margin-bottom: 5px; color: #38bdf8; font-weight: 600; letter-spacing: -0.025em;}
+        p { color: #94a3b8; font-size: 0.9rem; margin-top: 0; margin-bottom: 20px;}
+        .controls { margin-bottom: 15px; display: flex; align-items: center; gap: 20px;}
+        .legend { display: flex; gap: 15px; font-size: 0.85rem; }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .box { width: 12px; height: 12px; border-radius: 2px; }
+        #info { color: #ef4444; font-weight: bold; font-size: 0.9rem;}
+    </style>
+</head>
+<body>
+    <h1>StuDAG Cognitive Dashboard</h1>
+    <p>人类物理认知控制台 | 自动监听状态机 | <b>双击节点即可宣告消化并强制大模型回溯 (Pop)</b></p>
+    
+    <div class="controls">
+        <div class="legend">
+            <div class="legend-item"><div class="box" style="background: #ef4444;"></div>当前封锁点 (Top Focus)</div>
+            <div class="legend-item"><div class="box" style="background: #f59e0b;"></div>悬而未决 (Pending)</div>
+            <div class="legend-item"><div class="box" style="background: #10b981;"></div>已消化 (Resolved)</div>
+        </div>
+        <span id="info"></span>
+    </div>
+    
+    <div id="mynetwork"></div>
+
+    <script>
+        var network = null;
+        var lastStateStr = "";
+        
+        async function fetchState() {
+            try {
+                const response = await fetch('/api/state');
+                const state = await response.json();
+                const stateStr = JSON.stringify(state);
+                
+                // Only redraw if the physical state actually changed
+                if (stateStr !== lastStateStr) {
+                    drawGraph(state);
+                    lastStateStr = stateStr;
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function resolveNode(nodeId) {
+            try {
+                const res = await fetch('/api/resolve', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({node_id: nodeId})
+                });
+                const data = await res.json();
+                if (data.status === 'error') {
+                    // This hits the hard constraint in core.py
+                    document.getElementById('info').innerText = "❌ 物理熔断被触发: " + data.detail;
+                } else {
+                    document.getElementById('info').innerText = "✅ 节点已消化，AI 回溯指令已下达: " + nodeId;
+                    fetchState(); // Immediate refresh
+                }
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        function drawGraph(state) {
+            var nodes_data = [];
+            var edges_data = [];
+            
+            state.nodes.forEach(node => {
+                let color = node.status === 'resolved' ? '#10b981' : '#f59e0b';
+                let isTop = state.call_stack.length > 0 && state.call_stack[state.call_stack.length - 1] === node.id;
+                
+                if (isTop) color = '#ef4444';
+
+                nodes_data.push({
+                    id: node.id,
+                    label: node.topic + (isTop ? "\n[大模型锁定点]" : ""),
+                    shape: 'box',
+                    color: { background: color, border: '#334155', highlight: { background: color, border: '#cbd5e1'} },
+                    font: { color: 'white', face: 'Inter' },
+                    margin: 10
+                });
+
+                if (node.parent_id) {
+                    edges_data.push({
+                        from: node.parent_id,
+                        to: node.id,
+                        arrows: 'to',
+                        color: { color: '#64748b', highlight: '#94a3b8' },
+                        width: 2
+                    });
+                }
+            });
+
+            var container = document.getElementById('mynetwork');
+            var data = {
+                nodes: new vis.DataSet(nodes_data),
+                edges: new vis.DataSet(edges_data)
+            };
+            var options = {
+                layout: {
+                    hierarchical: {
+                        direction: 'UD',
+                        sortMethod: 'directed',
+                        nodeSpacing: 200,
+                        levelSeparation: 120
+                    }
+                },
+                physics: false,
+                interaction: { hover: true }
+            };
+
+            if (network === null) {
+                network = new vis.Network(container, data, options);
+                network.on("doubleClick", function (params) {
+                    if (params.nodes.length > 0) {
+                        var nodeId = params.nodes[0];
+                        if (confirm("确认你已彻底理解该知识点，并弹栈(Pop)强制大模型回溯？\n" + nodeId)) {
+                            resolveNode(nodeId);
+                        }
+                    }
+                });
+            } else {
+                network.setData(data);
+            }
+        }
+
+        // Poll physical state every 1 second
+        setInterval(fetchState, 1000);
+        fetchState();
+    </script>
+</body>
+</html>
