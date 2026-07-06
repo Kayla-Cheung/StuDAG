@@ -1,0 +1,35 @@
+name: Append Anti-Hallucination Constraints to Issue
+
+on:
+  push:
+    paths:
+      - 'issue_parallax_comment.md'
+
+jobs:
+  comment-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Add Comment to Parallax Issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 动态查找刚才创建的 Parallax Issue Number
+          ISSUE_NUMBER=$(gh issue list --state open --search "Architecture: Parallax Cognitive Dimensions" --json number --jq '.[0].number')
+          if [ -n "$ISSUE_NUMBER" ]; then
+            gh issue comment $ISSUE_NUMBER --body-file issue_parallax_comment.md
+          else
+            echo "Issue not found!"
+            exit 1
+          fi
+      - name: Cleanup
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git rm issue_parallax_comment.md
+          git rm .github/workflows/comment_issue.yml
+          git commit -m "chore: clean up issue comment files"
+          git push
