@@ -132,6 +132,8 @@
 
     <script>
         var network = null;
+        var nodesDataset = new vis.DataSet();
+        var edgesDataset = new vis.DataSet();
         var lastStateStr = "";
         
         function showToast(msg, isError=false) {
@@ -176,8 +178,8 @@
         }
 
         function drawGraph(state) {
-            var nodes_data = [];
-            var edges_data = [];
+            var new_nodes = [];
+            var new_edges = [];
             
             state.nodes.forEach(node => {
                 let color = node.status === 'resolved' ? 'var(--node-resolved)' : 'var(--node-pending)';
@@ -185,7 +187,7 @@
                 
                 if (isTop) color = 'var(--node-focus)';
 
-                nodes_data.push({
+                new_nodes.push({
                     id: node.id,
                     label: `[ ${node.topic} ]`,
                     shape: 'box',
@@ -201,7 +203,8 @@
                 });
 
                 if (node.parent_id) {
-                    edges_data.push({
+                    new_edges.push({
+                        id: `${node.parent_id}-${node.id}`,
                         from: node.parent_id,
                         to: node.id,
                         arrows: 'to',
@@ -212,35 +215,37 @@
                 }
             });
 
-            var container = document.getElementById('mynetwork');
-            var data = {
-                nodes: new vis.DataSet(nodes_data),
-                edges: new vis.DataSet(edges_data)
-            };
-            var options = {
-                layout: {
-                    hierarchical: {
-                        direction: 'UD',
-                        sortMethod: 'directed',
-                        nodeSpacing: 250,
-                        levelSeparation: 150
-                    }
-                },
-                physics: {
-                    enabled: true,
-                    hierarchicalRepulsion: {
-                        centralGravity: 0.0,
-                        springLength: 100,
-                        springConstant: 0.01,
-                        nodeDistance: 200,
-                        damping: 0.09
-                    },
-                    solver: 'hierarchicalRepulsion'
-                },
-                interaction: { hover: true, tooltipDelay: 200 }
-            };
+            nodesDataset.update(new_nodes);
+            edgesDataset.update(new_edges);
 
             if (network === null) {
+                var container = document.getElementById('mynetwork');
+                var data = {
+                    nodes: nodesDataset,
+                    edges: edgesDataset
+                };
+                var options = {
+                    layout: {
+                        hierarchical: {
+                            direction: 'UD',
+                            sortMethod: 'directed',
+                            nodeSpacing: 250,
+                            levelSeparation: 150
+                        }
+                    },
+                    physics: {
+                        enabled: true,
+                        hierarchicalRepulsion: {
+                            centralGravity: 0.0,
+                            springLength: 100,
+                            springConstant: 0.01,
+                            nodeDistance: 200,
+                            damping: 0.09
+                        },
+                        solver: 'hierarchicalRepulsion'
+                    },
+                    interaction: { hover: true, tooltipDelay: 200 }
+                };
                 network = new vis.Network(container, data, options);
                 network.on("doubleClick", function (params) {
                     if (params.nodes.length > 0) {
@@ -250,8 +255,6 @@
                 });
                 network.on("hoverNode", function() { document.body.style.cursor = "pointer"; });
                 network.on("blurNode", function() { document.body.style.cursor = "default"; });
-            } else {
-                network.setData(data);
             }
         }
 
