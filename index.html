@@ -145,7 +145,7 @@
 
         async function fetchState() {
             try {
-                const response = await fetch('/api/state');
+                const response = await fetch('/api/state?t=' + new Date().getTime());
                 const state = await response.json();
                 const stateStr = JSON.stringify(state);
                 
@@ -182,10 +182,10 @@
             var new_edges = [];
             
             state.nodes.forEach(node => {
-                let color = node.status === 'resolved' ? '#10b981' : '#f59e0b'; // Green or Orange
+                let color = node.status === 'resolved' ? '#10b981' : '#f59e0b';
                 let isTop = state.call_stack.length > 0 && state.call_stack[state.call_stack.length - 1] === node.id;
                 
-                if (isTop) color = '#ef4444'; // Red
+                if (isTop) color = '#ef4444';
 
                 new_nodes.push({
                     id: node.id,

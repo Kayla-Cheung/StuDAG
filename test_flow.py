@@ -18,20 +18,20 @@ def test_api():
 
     # 2. Push Root Node
     print("\n[+] Pushing root node: CPU Principles")
-    r = client.post(f"{BASE_URL}/push", params={"topic": "CPU Principles"})
+    r = client.post(f"{BASE_URL}/push", json={"topic": "CPU Principles"})
     assert r.status_code == 200, r.text
     root_id = r.json()["node_id"]
     print(f"    -> Root ID: {root_id}")
 
     # 3. Push Sub Node 1
     print("\n[+] Pushing sub node: Transistors")
-    r = client.post(f"{BASE_URL}/push", params={"topic": "Transistors"})
+    r = client.post(f"{BASE_URL}/push", json={"topic": "Transistors"})
     sub1_id = r.json()["node_id"]
     print(f"    -> Sub1 ID: {sub1_id}")
 
     # 4. Push Sub Node 2 under Sub 1
     print("\n[+] Pushing sub node: Semiconductors")
-    r = client.post(f"{BASE_URL}/push", params={"topic": "Semiconductors"})
+    r = client.post(f"{BASE_URL}/push", json={"topic": "Semiconductors"})
     sub2_id = r.json()["node_id"]
     print(f"    -> Sub2 ID: {sub2_id}")
 

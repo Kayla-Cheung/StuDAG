@@ -44,11 +44,19 @@ class CognitiveTracker:
 
     def push_node(self, topic: str, parent_id: Optional[str] = None) -> str:
         """人类发起了深层追问，将新概念压入认知栈"""
+        # 强制磁盘同步：防止多进程脑裂覆写
+        self.state = self._load_state()
+
         node_id = f"node_{uuid.uuid4().hex[:8]}"
         
         # 寻址规则：如果没有指定父节点，自动挂载在当前栈顶节点之下
         if not parent_id and self.state.call_stack:
             parent_id = self.state.call_stack[-1]
+
+        # 物理防御：绝对禁止在已经消灭的节点上节外生枝
+        if parent_id and parent_id in self.state.nodes:
+            if self.state.nodes[parent_id].status == "resolved":
+                raise PermissionError(f"物理熔断被触发：父节点 [{self.state.nodes[parent_id].topic}] 已经结算完毕。系统禁止在已死节点上强行开辟新分支！")
 
         new_node = Node(id=node_id, topic=topic, parent_id=parent_id)
         self.state.nodes[node_id] = new_node
@@ -62,6 +70,9 @@ class CognitiveTracker:
 
     def resolve_node(self, node_id: str):
         """人类宣告理解，将节点弹栈 (POP)"""
+        # 强制磁盘同步：防止多进程脑裂覆写
+        self.state = self._load_state()
+
         if node_id not in self.state.nodes:
             raise ValueError(f"节点 {node_id} 不存在")
             

@@ -12,10 +12,14 @@ tracker = CognitiveTracker()
 class ResolveRequest(BaseModel):
     node_id: str
 
+class PushRequest(BaseModel):
+    topic: str
+    parent_id: str = None
+
 @app.post("/api/push")
-def push_node(topic: str, parent_id: str = None):
+def push_node(req: PushRequest):
     try:
-        nid = tracker.push_node(topic, parent_id)
+        nid = tracker.push_node(req.topic, req.parent_id)
         return {"status": "success", "node_id": nid}
     except Exception as e:
         return {"status": "error", "detail": str(e)}
