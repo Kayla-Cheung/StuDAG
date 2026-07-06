@@ -215,6 +215,15 @@
                 }
             });
 
+            var new_node_ids = new_nodes.map(n => n.id);
+            var new_edge_ids = new_edges.map(e => e.id);
+
+            var nodesToRemove = nodesDataset.getIds().filter(id => !new_node_ids.includes(id));
+            var edgesToRemove = edgesDataset.getIds().filter(id => !new_edge_ids.includes(id));
+
+            if (nodesToRemove.length > 0) nodesDataset.remove(nodesToRemove);
+            if (edgesToRemove.length > 0) edgesDataset.remove(edgesToRemove);
+
             nodesDataset.update(new_nodes);
             edgesDataset.update(new_edges);
 
