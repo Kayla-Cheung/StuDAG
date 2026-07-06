@@ -8,34 +8,33 @@
 
 An external working-memory prosthetic for ADHD learners.
 
-### Problem
-Standard LLMs act as linear conversationalists. This actively worsens the core ADHD learning constraint: **Call Stack Loss**.
+### The Core Problem: Context Drift
+When you use an LLM (like ChatGPT or Claude) to learn a complex topic, you usually fall into the **Context Drift Trap**:
 
-When an ADHD user encounters a new concept, they branch out into sub-questions (Hyperfocus). The LLM blindly follows them down this rabbit hole. By depth 5, the user's working memory overflows, and they completely forget the original root topic. The learning session derails.
+- **Without StuDAG**: You ask "How does a CPU work?" The AI mentions "Transistors". You ask "What is a Transistor?" The AI explains it, then segues into semiconductor physics, then the history of Silicon Valley... 30 minutes later, your working memory is overloaded, and you've completely forgotten you were trying to learn about CPUs. The learning session is ruined.
 
-### Solution
-StuDAG forces the LLM to abandon linear chat and operate as a strict **Directed Acyclic Graph (DAG) Engine**. 
+LLMs are linear conversationalists. They blindly follow your ADHD hyperfocus down infinite rabbit holes.
 
-It offloads the user's executive function into a physical JSON state machine. The AI is no longer a conversational partner; it is a rigid progress tracker.
+### The Solution: A Physical Cognitive Graph
+StuDAG fixes this by stripping the LLM of its conversational freedom and forcing it to act as a strict **Directed Acyclic Graph (DAG) State Machine**. 
 
-1. **Push (Branching)**: When the user asks a foundational question, StuDAG pushes a sub-node onto the call stack. The AI is forced to isolate its context to this specific node.
-2. **Pop (Backtracking)**: When the user signals comprehension, the AI cannot randomly pivot. It must `POP` the stack and forcefully drag the user's attention back to the exact parent node they left behind.
+It provides you with a physical, interactive visual dashboard that tracks your cognitive stack.
 
-### Workflow
+- **With StuDAG**: 
+  1. You ask "How does a CPU work?" (Node A is created on your dashboard). 
+  2. You ask about "Transistors". The AI is forced to `push` Node B. The AI's context is now physically restricted to ONLY explaining Node B.
+  3. Once you understand Node B, you double-click it on your dashboard to `pop` it.
+  4. The system physically forces the AI to drag your attention back to Node A. 
 
-How it looks in practice:
-
-1. **Initialize**: You start a complex learning topic (e.g., "Teach me Digital Circuits"). The LLM uses `push` to lock in the Root Node.
-2. **Drill Down**: You encounter a prerequisite you don't know (e.g., "Wait, what is a Flip-Flop?"). The LLM uses `push` to add a child node. Its context is now strictly isolated to this sub-concept.
-3. **Pop & Resume**: Once you understand the sub-concept, the LLM `resolve`s it. The engine pops the stack, forcing the AI to pull your attention back to the abandoned parent node.
-4. **Hard Constraints**: If the AI attempts to hallucinate or skip ahead by resolving the parent node while children are pending, StuDAG throws a physical `PermissionError`, instantly aborting the AI's generation.
+No more drifting. No more cognitive overload. You maintain absolute control over your learning topology.
 
 ### Architecture
 StuDAG uses the Model Context Protocol (MCP) server architecture.
 
 - `core.py`: The DAG state machine layer (Pydantic). Enforces topological constraints: a parent node cannot be resolved before its children.
 - `server.py`: The MCP interface. Exposes `push`, `resolve`, and `get_state` tools to the LLM.
-- `state_machine.json`: Physical local storage mapping the user's active call stack.
+- `dashboard.py`: A FastAPI backend that streams real-time physical state to a Web UI.
+- `index.html`: The interactive visual frontend (vis-network) for human-in-the-loop control.
 
 ### Usage
 ```bash
@@ -84,34 +83,33 @@ Go to `Cursor Settings > Features > MCP` and add a new server:
 
 专为 ADHD 学习者设计的外部“工作记忆”义肢。
 
-### 核心痛点
-主流大语言模型（LLM）的本质是线性对话。这恰恰加剧了 ADHD 人群在学习时的核心缺陷：**调用栈迷失（Call Stack Loss）**。
+### 核心痛点：认知漂移 (Context Drift)
+当你使用大模型学习复杂知识时，通常会陷入致命的**发散陷阱**：
 
-当 ADHD 用户遇到新概念时，往往会不受控地发散出无数子问题（Hyperfocus 状态）。LLM 会盲目地顺着这个发散分支聊下去。当嵌套深度达到 5 层时，用户的工作记忆早已溢出，彻底遗忘了最初的根问题。学习进程全面崩溃。
+- **没有 StuDAG 时**：你问“CPU是怎么工作的？” AI 提到了“晶体管”。你顺口问“什么是晶体管？” AI 解释完后，开始顺着话头聊半导体物理、甚至硅谷的历史…… 半小时后，你的短时工作记忆彻底溢出，你完全忘了最初其实是在学 CPU。学习主线全面崩溃。
 
-### 解决方案
-StuDAG 强制剥夺了 LLM 的闲聊能力，将其降维成一个极度死板的 **有向无环图（DAG）引擎**。
+大模型会盲目迎合 ADHD 极易涣散的注意力，带着你一路走进死胡同。
 
-它将用户的“执行功能”物理外包给了一个 JSON 状态机。AI 不再是对话伙伴，而是一个冷酷的进度追踪器：
+### 解决方案：物理强制认知树
+StuDAG 的做法是：剥夺大模型的自由对话权，把它降维成一个极度死板的 **有向无环图（DAG）状态机**。
 
-1. **Push (压栈锁定)**: 当用户追问前置概念时，StuDAG 在调用栈压入一个子节点。AI 被强制锁定在该节点的上下文中，禁止提及主干。
-2. **Pop (强制回溯)**: 当用户宣告理解，AI 无法自由发散。它必须执行弹栈（POP），并强制将用户的注意力拽回上一个悬而未决的父节点。
+它为你提供了一个动态生成的“可视化认知监控大屏”。
 
-### 工作流 (Workflow)
+- **接入 StuDAG 后**：
+  1. 你问“CPU工作原理”。（监控大屏上自动建立节点 A）。
+  2. 你追问“晶体管”。AI 必须调用工具 `push` 节点 B。此时，AI 会被系统强行剥夺对节点 A 的记忆，**只准**解释节点 B。
+  3. 当你彻底搞懂了，在屏幕上双击节点 B 宣告“已消化（Pop）”。
+  4. 系统底层物理介入，发出强指令，强迫 AI 主动把你的注意力拽回遗忘的节点 A（CPU工作原理）。
 
-实机交互的典型流向：
-
-1. **确立主干**: 你抛出一个宏大目标（如“复习数电期末”）。LLM 调用 `push` 建立根节点。
-2. **向下深潜**: 遇到不懂的前置概念（如“什么是触发器”），你进行追问。LLM 必须调用 `push` 压入子节点。此时，AI 的对话范围被物理封锁，绝对禁止向你灌输后续的主干知识。
-3. **向上回溯**: 当你宣告消化了该概念，LLM 调用 `resolve` 弹栈。系统会强行要求 AI 将话题拉回到上一层被你遗忘的父节点。
-4. **物理熔断**: 如果 LLM 试图“自作聪明”跳过子节点直接结算父节点，StuDAG 引擎会直接抛出 `PermissionError` 切断它的生成流，强迫它认清人类当前的真实进度。
+彻底切断上下文漂移。让机器替你承担最耗费精力的“执行功能（Executive Function）”。
 
 ### 系统架构
 StuDAG 采用 Model Context Protocol (MCP) 服务器架构，直接拦截 LLM 的生成流。
 
 - `core.py`: DAG 状态机层 (基于 Pydantic)。执行物理拓扑约束：子节点未解决前，绝对禁止跨级结算父节点。
-- `server.py`: MCP 协议接口层。暴露 `push`、`resolve` 和 `get_state`，强制 LLM 在每次生成回复前读取用户的认知栈底。
-- `state_machine.json`: 物理存储用户当前调用栈的本地状态库（已在版本控制中隔离）。
+- `server.py`: MCP 协议接口层。暴露 `push`、`resolve` 和 `get_state`，强制大模型按图谱流转。
+- `dashboard.py`: FastAPI 后端，负责向前端实时同步底层的拓扑状态机。
+- `index.html`: 可视化交互大屏。把状态机变为人类可以直接双击操作的控制台。
 
 ### 启动指南
 ```bash
