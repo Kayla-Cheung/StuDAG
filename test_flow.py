@@ -12,10 +12,9 @@ def test_api():
     print("========================================")
     
     # 1. Clean up
-    state_file = os.path.join(os.path.dirname(__file__), "state_machine.json")
-    if os.path.exists(state_file):
-        os.remove(state_file)
-        print("[*] Cleaned up legacy state_machine.json")
+    r = client.post(f"{BASE_URL}/clear")
+    assert r.status_code == 200
+    print("[*] Cleaned up state via API")
 
     # 2. Push Root Node
     print("\n[+] Pushing root node: CPU Principles")
