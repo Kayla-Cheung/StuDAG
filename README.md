@@ -43,10 +43,14 @@ git clone https://github.com/Kayla-Cheung/StuDAG.git
 cd StuDAG
 pip install -r requirements.txt
 
-# Start the MCP server
+# 1. Run the interactive web dashboard (Recommended)
+python dashboard.py
+# Then open http://localhost:8080 in your browser
+
+# 2. Start the MCP server (for Claude/Cursor integration)
 python server.py
 
-# Or run the local interactive tester
+# 3. Or run the local terminal tester
 python cli_tester.py
 ```
 
@@ -115,10 +119,14 @@ git clone https://github.com/Kayla-Cheung/StuDAG.git
 cd StuDAG
 pip install -r requirements.txt
 
-# 启动 MCP 服务器拦截网
+# 1. 启动全栈可视化监控大屏（推荐）
+python dashboard.py
+# 然后用浏览器打开 http://localhost:8080
+
+# 2. 启动 MCP 服务器拦截网 (用于接入 Claude/Cursor)
 python server.py
 
-# 或者启动本地交互测试台
+# 3. 启动本地命令行交互测试台
 python cli_tester.py
 ```
 
