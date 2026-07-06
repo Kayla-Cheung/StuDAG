@@ -46,6 +46,13 @@ def resolve_node(req: ResolveRequest):
         # Pass the PermissionError up to the frontend UI
         return {"status": "error", "detail": str(e)}
 
+@app.post("/api/clear")
+def clear_state():
+    from core import DAGState
+    tracker.state = DAGState()
+    tracker._save_state()
+    return {"status": "success"}
+
 @app.get("/", response_class=HTMLResponse)
 def read_root():
     with open("index.html", "r", encoding="utf-8") as f:
