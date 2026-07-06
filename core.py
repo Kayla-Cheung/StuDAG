@@ -25,7 +25,10 @@ class DAGState(BaseModel):
 class CognitiveTracker:
     """人类认知拓扑跟踪引擎核心"""
     
-    def __init__(self, storage_path: str = "state_machine.json"):
+    def __init__(self, storage_path: str = None):
+        if storage_path is None:
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            storage_path = os.path.join(base_dir, "state_machine.json")
         self.storage_path = storage_path
         self.state = self._load_state()
 
