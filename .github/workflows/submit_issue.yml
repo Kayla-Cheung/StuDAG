@@ -1,0 +1,29 @@
+name: Submit Parallax Issue
+
+on:
+  push:
+    paths:
+      - 'issue_parallax.md'
+
+jobs:
+  create-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Create Issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Use gh cli to create the issue using the markdown file
+          gh issue create --title "Architecture: Parallax Cognitive Dimensions (视差认知空间)" --body-file issue_parallax.md --label "enhancement,architecture,epistemology" --assignee "Kayla-Cheung"
+      - name: Cleanup
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git rm issue_parallax.md
+          git rm .github/workflows/submit_issue.yml
+          git commit -m "chore: clean up issue submission files"
+          git push
