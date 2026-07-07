@@ -8,6 +8,24 @@
 
 An external working-memory prosthetic for ADHD learners.
 
+## Why you can literally learn anything with Graph Theory
+
+i was learning graph theory the other day when trying to refine my agent's workflow, in order to make them use LLMs in a rather organized way. As discussing the concepts with my chatbot, i realized one thing, that as we deepen one topic forward, we may lose our direction, and the chatbot would remember the original roadmap neither.
+Again, using words, telling the chatbot to help reverse to the former cross is doomed to be helpless. The only way out is to use hard-core codes to fix the process. But how?
+Fortunately, the topic I was learning, the Graph Theory, offers a great point for it——
+
+### what is DAG ?
+DAG, abbreviation for Directed Acyclic Graph, is a 2-dimensional graph. To understand it, we need to clarify some concepts.
+**NODES:** representing an event
+**EDGES:** representing the relationship between to things, the arrows points from A to B, as B can only happen after A is done
+and there are two basic rules for the graph to work：
+**1** one node can only be carried out when no edge is pointing at it
+**2** no closed loop is allowed to exist in the graph
+
+### How can one use DAG to study
+when learning something, the **flow** is the key to fast and efficient learning. Of course we don't want any interruption or unnecessary work to kill the joy of flow, but that may lead to the problem of getting distracted.
+So, i think it would do to fetch the conversation with your chatbot(we assume it acts like a tutor or pal whom you tell what you're doing to), and automatically draw a DAG graph of your topics. With a visual map, you can easily know where you were, and the chatbot can remind you to go back once you go too far
+
 ### The Core Problem: Context Drift
 When you use an LLM (like ChatGPT or Claude) to learn a complex topic, you usually fall into the **Context Drift Trap**:
 
@@ -76,6 +94,12 @@ Go to `Cursor Settings > Features > MCP` and add a new server:
 - Type: `command`
 - Name: `StuDAG`
 - Command: `python /absolute/path/to/StuDAG/server.py`
+
+### System Prompt (Behavioral Contract)
+
+For the MCP tools to work effectively, you MUST restrict the LLM's conversational freedom by injecting a strict system prompt. This prevents the LLM from info-dumping and forces it to use the DAG topology.
+
+See [system_prompt.txt](./system_prompt.txt) for the exact prompt to paste into Claude's Custom Instructions or Cursor Rules.
 
 ---
 

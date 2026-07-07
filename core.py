@@ -42,7 +42,7 @@ class CognitiveTracker:
         with open(self.storage_path, 'w', encoding='utf-8') as f:
             f.write(self.state.model_dump_json(indent=2))
 
-    def push_node(self, topic: str, parent_id: Optional[str] = None) -> str:
+    def push_node(self, topic: str, parent_id: Optional[str] = None, set_focus: bool = True) -> str:
         """人类发起了深层追问，将新概念压入认知栈"""
         # 强制磁盘同步：防止多进程脑裂覆写
         self.state = self._load_state()
@@ -64,7 +64,8 @@ class CognitiveTracker:
         if parent_id and parent_id in self.state.nodes:
             self.state.nodes[parent_id].children.append(node_id)
             
-        self.state.call_stack.append(node_id)
+        if set_focus:
+            self.state.call_stack.append(node_id)
         self._save_state()
         return node_id
 

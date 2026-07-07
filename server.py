@@ -12,13 +12,13 @@ mcp = FastMCP("StuDAG_Interceptor")
 BASE_URL = "http://127.0.0.1:8080/api"
 
 @mcp.tool()
-def push_knowledge_node(topic: str, parent_id: str = None) -> str:
+def push_knowledge_node(topic: str, parent_id: str = None, set_focus: bool = True) -> str:
     """
     当人类用户追问前置知识、遇到不理解的新概念时，AI 必须调用此工具。
     作用：强制挂起当前主干，将人类引入深层认知子节点。
     """
     try:
-        r = httpx.post(f"{BASE_URL}/push", json={"topic": topic, "parent_id": parent_id})
+        r = httpx.post(f"{BASE_URL}/push", json={"topic": topic, "parent_id": parent_id, "set_focus": set_focus})
         data = r.json()
         if data.get("status") == "error":
             return f"[FATAL ERROR] 物理熔断: {data.get('detail')}"

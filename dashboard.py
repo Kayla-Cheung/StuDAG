@@ -15,11 +15,12 @@ class ResolveRequest(BaseModel):
 class PushRequest(BaseModel):
     topic: str
     parent_id: str = None
+    set_focus: bool = True
 
 @app.post("/api/push")
 def push_node(req: PushRequest):
     try:
-        nid = tracker.push_node(req.topic, req.parent_id)
+        nid = tracker.push_node(req.topic, req.parent_id, req.set_focus)
         return {"status": "success", "node_id": nid}
     except Exception as e:
         return {"status": "error", "detail": str(e)}
